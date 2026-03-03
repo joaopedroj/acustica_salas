@@ -122,6 +122,4 @@ python scripts/claridade.py
 python scripts/STI.py
 ```
 
-Os scripts que realizam automação (`T_reverb.py`, `NPS.py`, `claridade.py`) buscam os arquivos de áudio automaticamente via `glob` a partir do diretório `audio/`.
 
-> **Pré-requisito:** os arquivos de áudio devem estar em `audio/` seguindo a convenção de nomes descrita acima.
