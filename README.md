@@ -2,7 +2,7 @@
 
 Scripts Python para análise acústica de salas de reunião universitárias a partir de respostas ao impulso por explosão. Calcula T60, C50, D50, SNR, U50, STI e IF nas bandas de oitava de 125 Hz a 8000 Hz, com geração automatizada de curvas de Schroeder por banda e sala.
 
-Desenvolvido como parte da monografia *Avaliação Acústica de Salas de Reunião em Ambiente Universitário*.
+Desenvolvido como parte da monografia *Avaliação Acústica de Salas de Aulas na Universidade Federal de São Carlos*.
 
 ---
 
