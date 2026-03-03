@@ -1,0 +1,76 @@
+=== SCRIPT: NPS.py ===
+
+DESCRIÇÃO:
+  Script que calcula o Nível de Pressão Sonora (NPS/Leq) e a Relação Sinal-Ruído (SNR)
+  por banda de oitava a partir de gravações de ruído rosa mais ruído de fundo e gravações
+  de ruído de fundo isolado. O script converte os sinais digitais para Pascal, calcula o
+  Leq global e filtrado por banda, e computa o SNR subtraindo energeticamente o ruído de
+  fundo do sinal combinado. Possui duas células independentes: a primeira processa AT5
+  (sem ventiladores) e gera plotagens do NPS no tempo; a segunda processa AT9 (com
+  ventiladores) e calcula adicionalmente o U50 para múltiplos impulsos.
+
+MÉTRICAS ACÚSTICAS CALCULADAS:
+  - Leq (nível equivalente em dB SPL, por banda e global)
+  - SNR (relação sinal-ruído em dB, por banda de oitava)
+  - U50 (métrica de utilidade, calculada na segunda célula combinando C50 e SNR)
+
+ARQUIVOS DE ÁUDIO DE ENTRADA:
+  (Célula 1 - AT5 sem ventiladores, ativo):
+    - AT5_ruido rosa mic1.wav       (ruído rosa + fundo)
+    - AT5_ruido fundo mic1.wav      (ruído de fundo)
+
+  (Comentados na célula 1 - AT5 com ventiladores):
+    - AT5_ruido rosa ventilador2 mic1.wav
+    - AT5_ventilador2 mic1.wav
+
+  (Comentados na célula 1 - AT10 sem ventiladores):
+    - AT10_ruido rosa1.wav
+    - AT10_ruido fundo1.wav
+
+  (Comentados na célula 1 - AT10 com ventiladores):
+    - AT10_ruido rosa ventilador.wav
+    - AT10_ruido ventilador1.wav
+
+  (Comentados na célula 1 - AT9 sem ventiladores):
+    - AT9_ruido rosa3.wav
+    - AT9_ruido fundo.wav
+
+  (Comentados na célula 1 - AT9 com ventiladores):
+    - AT9_ruido rosa ventilador2.wav
+    - AT9_ruido ventilador.wav
+
+  (Célula 2 - AT9 com ventiladores, ativo):
+    - AT9_ruido rosa ventilador2.wav (ruído rosa + fundo)
+    - AT9_ruido ventilador.wav       (ruído de fundo)
+    - AT9_explosão{1..16}.wav        (impulsos para cálculo de U50)
+
+MÓDULOS PYTHON IMPORTADOS:
+  - parametros
+  - claridade  (importado mas não usado ativamente na célula 1)
+
+SAÍDAS GERADAS:
+  - Dois gráficos de NPS [dB] no tempo (um para áudio1, outro para áudio2) com anotação
+    de Leq, na célula 1.
+  - Impressão de SNR por banda no console (célula 1).
+  - Impressão de U50 por banda e por impulso no console (célula 2).
+  - Nomes de arquivos PNG comentados: "ruido_de_fundo_AT9_1.png", "ruido_de_fundo_AT9_2.png".
+
+FIGURAS DA MONOGRAFIA RELACIONADAS:
+  Os gráficos de NPS no tempo correspondem às figuras de ruído de fundo apresentadas na
+  monografia para cada ambiente. Os valores de SNR alimentam as figuras de comparação de
+  SNR por frequência geradas em graficos.py. O PDF não pôde ser lido automaticamente;
+  a associação exata com números de figuras não pode ser confirmada.
+
+NÚMERO DE CÉLULAS JUPYTER (#%%):
+  3
+
+NOTAS ADICIONAIS:
+  - A função UTR(C80, SNR) calcula U80 (ou U50, conforme nomenclatura usada) usando a
+    fórmula: U = 10*log10(10^(C/10) / (1 + (10^(C/10)+1) * 10^(-SNR/10))).
+  - Sensibilidade do microfone fixada em 50 mV/Pa; tensão de fundo de escala em 1,0 V.
+  - O sinal é truncado em 121 segundos máximos para evitar uso excessivo de memória.
+  - O bloco de cálculo de U80 a partir de C80 de claridade.py está comentado ao final
+    da célula 1.
+  - O eixo x dos gráficos de NPS é fixado em 0-120 s e o eixo y em 0-100 dB.
+  - Na célula 2, o cálculo de SNR é efetuado com AT9 (ventiladores); o loop de U50
+    itera sobre os 16 impulsos do AT9.

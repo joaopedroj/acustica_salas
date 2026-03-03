@@ -1,0 +1,56 @@
+=== SCRIPT: STI.py ===
+
+DESCRIÇÃO:
+  Script que calcula o Índice de Transmissão da Fala (Speech Transmission Index - STI)
+  conforme a norma IEC 60268-16. O método utiliza convolução da resposta ao impulso com
+  sinais de ruído branco filtrados em bandas de oitava e modulados a 14 frequências de
+  modulação, calculando a função de transferência de modulação (MTF) e o índice de
+  transmissão por banda (TI). O STI final é obtido pela combinação ponderada dos MTIs
+  de cada banda.
+
+MÉTRICAS ACÚSTICAS CALCULADAS:
+  - TI (índice de transmissão por banda de modulação, por banda de oitava)
+  - MTI (índice de transferência de modulação médio por banda de oitava)
+  - STI (índice de transmissão da fala, escalar 0-1)
+
+ARQUIVOS DE ÁUDIO DE ENTRADA:
+  - AT10_explosao3.wav  (herdado de parametros.py como resposta ao impulso h(t))
+
+MÓDULOS PYTHON IMPORTADOS:
+  - parametros
+
+SAÍDAS GERADAS:
+  - Impressão no console do MTI por banda (7 valores).
+  - Impressão dos termos intermediários (term1, term2) e do valor final de STI.
+  - Impressão da classificação qualitativa do STI:
+      >= 0.75: Excelente
+      >= 0.60: Boa
+      >= 0.45: Regular
+      >= 0.30: Pobre
+      < 0.30:  Muito pobre
+  - Nenhum arquivo PNG ou gráfico é gerado.
+
+FIGURAS DA MONOGRAFIA RELACIONADAS:
+  O valor de STI calculado por este script é um dos resultados tabelados ou discutidos
+  na monografia para cada ambiente. Não gera figuras diretamente; os valores são
+  reportados em tabelas ou citados no texto. O PDF não pôde ser lido automaticamente;
+  a associação exata não pode ser confirmada.
+
+NÚMERO DE CÉLULAS JUPYTER (#%%):
+  2
+
+NOTAS ADICIONAIS:
+  - Frequências de modulação: 0.63, 0.8, 1.0, 1.25, 1.6, 2.0, 2.5, 3.15, 4.0, 5.0,
+    6.3, 8.0, 10.0, 12.5 Hz (14 frequências, conforme IEC 60268-16).
+  - Pesos espectrais alpha_k por banda de oitava:
+    [0.085, 0.127, 0.230, 0.233, 0.309, 0.224, 0.173]
+  - Pesos de correlação entre bandas adjacentes beta_k (6 valores):
+    [0.085, 0.078, 0.065, 0.011, 0.047, 0.095]
+  - A geração dos sinais anecoicos usa np.random.randn (ruído branco gaussiano) com
+    duração de 5 segundos; o resultado é não determinístico entre execuções.
+  - A profundidade de modulação m_x é fixada em 1,0 (modulação total).
+  - A amplitude de modulação é calculada pelo método de correlação
+    (calcular_amplitude_modulacao_correlacao de parametros.py).
+  - O SNR efetivo é clipado entre 0 e 1 antes de ser somado como TI.
+  - Este script processa apenas o arquivo carregado em parametros.py; não há automação
+    para múltiplos impulsos ou ambientes.

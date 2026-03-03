@@ -1,0 +1,59 @@
+=== SCRIPT: claridade.py ===
+
+DESCRIÇÃO:
+  Script que calcula as métricas de claridade sonora C50 e definição D50 em todas as
+  bandas de oitava (125 Hz a 8000 Hz) a partir de respostas ao impulso. O cálculo baseia-
+  se na relação entre a energia acústica nos primeiros 50 ms e a energia total (D50) e no
+  logaritmo da razão entre energia pré-50 ms e pós-50 ms (C50). O script possui três
+  células: uma célula de análise de um único arquivo (parametros.py), uma célula de
+  automação por múltiplos impulsos e arquivos, e uma célula de extração de valores médios
+  por ambiente (AT5, AT9 e AT10).
+
+MÉTRICAS ACÚSTICAS CALCULADAS:
+  - C50 (claridade, em dB)
+  - D50 (definição, adimensional, em %)
+
+ARQUIVOS DE ÁUDIO DE ENTRADA:
+  (Célula 1 - via parametros.py):
+    - AT10_explosao3.wav (herdado de parametros)
+
+  (Célula 2 - automação explícita por arquivo):
+    - AT9_explosão{1..16}.wav
+    - AT10_explosao{1..8}.wav
+    - AT5_explosão{1..8}.wav
+
+  (Célula 3 - extração de médias):
+    - AT9_explosão{9..16}.wav
+    - AT10_explosao{1..8}.wav
+    - AT5_explosão{1..8}.wav
+
+MÓDULOS PYTHON IMPORTADOS:
+  - parametros
+
+SAÍDAS GERADAS:
+  - Impressão no console de D50 (%) e C50 (dB) para cada banda de oitava e cada impulso
+    nas células 1 e 2.
+  - Impressão das matrizes C50_AT5, C50_AT9, C50_AT10 e das médias por coluna (frequência)
+    na célula 3.
+  - Nenhum arquivo PNG é salvo (os comandos plt.savefig estão comentados).
+  - Os blocos de plotagem de energia instantânea estão comentados.
+
+FIGURAS DA MONOGRAFIA RELACIONADAS:
+  Os valores de C50 e D50 calculados neste script alimentam as figuras de comparação
+  plotadas em graficos.py (gráficos de C50 e D50 por frequência para AT5, AT9 e AT10).
+  O PDF não pôde ser lido automaticamente neste ambiente; a associação exata com números
+  de figuras não pode ser confirmada.
+
+NÚMERO DE CÉLULAS JUPYTER (#%%):
+  4
+
+NOTAS ADICIONAIS:
+  - A janela de análise é definida por soma_indice = 28230 - 1 amostras após o pico,
+    equivalente a aproximadamente 0,55 s a 51200 Hz.
+  - O AT9 tem 16 impulsos (dois grupos de configuração); AT5 e AT10 têm 8 impulsos cada.
+  - A célula 3 gera as matrizes numpy C50_AT5 (8x7), C50_AT9 (8x7) e C50_AT10 (8x7)
+    e calcula as médias por frequência (colunas).
+  - Um valor de teste hardcoded é impresso ao final da célula 3:
+    teste=[-7.68301103, ..., -12.7441116].
+  - A curva de Schroeder é calculada mas usada apenas como referência interna; o cálculo
+    de C50/D50 usa diretamente os vetores de energia no domínio do tempo.

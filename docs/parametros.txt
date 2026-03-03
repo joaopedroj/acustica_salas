@@ -1,0 +1,42 @@
+=== SCRIPT: parametros.py ===
+
+DESCRIÇÃO:
+  Este script é o módulo central de configuração e utilitários do projeto. Ele carrega
+  o arquivo de áudio principal (AT10_explosao3.wav), define as frequências centrais das
+  bandas de oitava (125 Hz a 8000 Hz), realiza o janelamento do sinal ao redor do pico
+  de impulso e expõe um conjunto de funções auxiliares reutilizadas pelos demais scripts.
+
+MÉTRICAS ACÚSTICAS CALCULADAS:
+  Nenhuma métrica acústica é calculada diretamente; o script fornece funções de apoio
+  para o cálculo de: Leq (nível equivalente), Lmax (nível máximo), além de funções para
+  filtragem em bandas de oitava, cálculo de intensidade instantânea (via transformada de
+  Hilbert), amplitude de modulação (via FFT e correlação) e conversão de sinal digital
+  para Pascal.
+
+ARQUIVOS DE ÁUDIO DE ENTRADA:
+  - AT10_explosao3.wav  (arquivo ativo, carregado via wav.read)
+
+MÓDULOS PYTHON IMPORTADOS:
+  Nenhum módulo local do projeto é importado; parametros.py é o módulo raiz.
+
+SAÍDAS GERADAS:
+  - Nenhuma figura ou arquivo é salvo diretamente.
+  - Imprime mensagem de duração do áudio quando o sinal não é truncado.
+
+FIGURAS DA MONOGRAFIA RELACIONADAS:
+  Não gera figuras diretamente. As funções definidas aqui sustentam as figuras geradas
+  pelos demais scripts (curvas de Schroeder, T60, C50, D50, STI, SNR, U50, IF).
+  Nota: o PDF da monografia não pôde ser lido automaticamente neste ambiente
+  (ferramenta pdftoppm indisponível); as associações de figuras foram inferidas pelo
+  código e pelos nomes de arquivos PNG gerados pelos outros scripts.
+
+NÚMERO DE CÉLULAS JUPYTER (#%%):
+  2
+
+NOTAS ADICIONAIS:
+  - Frequência de amostragem alvo: 51200 Hz (típica de sonômetro).
+  - Bandas de oitava cobertas: 125, 250, 500, 1000, 2000, 4000 e 8000 Hz.
+  - A sensibilidade do microfone é fixada em 50 mV/Pa e a tensão de fundo de escala em 1,0 V.
+  - O bloco de leitura de múltiplos arquivos (AT10_explosao1 a 8) está comentado.
+  - O arquivo carregado por padrão (AT10_explosao3.wav) pode ser alterado manualmente.
+  - Contém grande bloco de código comentado referente à leitura e média de 8 impulsos.

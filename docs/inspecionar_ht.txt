@@ -1,0 +1,58 @@
+=== SCRIPT: completo_geral.py ===
+
+DESCRIÇÃO:
+  Script que generaliza o processamento de completo_1kHz.py para todas as sete bandas de
+  oitava (125 Hz a 8000 Hz), iterando sobre a lista f_central_lista. A primeira célula
+  processa o arquivo carregado por parametros.py, gerando e salvando gráficos de energia
+  e Schroeder por banda. A segunda célula é uma automação que itera sobre os impulsos 9 a
+  16 do AT9 (Config. 2), salvando os gráficos h(t) + Schroeder por arquivo e por frequência.
+
+MÉTRICAS ACÚSTICAS CALCULADAS:
+  - T20 / T60 (estimado por regressão linear na curva de Schroeder, na célula 1)
+  - Impressão de T20 por banda no console (célula 1)
+
+ARQUIVOS DE ÁUDIO DE ENTRADA:
+  (Célula 1 - via parametros.py):
+    - AT10_explosao3.wav  (herdado de parametros)
+
+  (Célula 2 - automação explícita):
+    - AT9_explosão{9..16}.wav
+
+MÓDULOS PYTHON IMPORTADOS:
+  - parametros
+
+SAÍDAS GERADAS:
+  (Célula 1):
+    - primeiras_reflexoes.png  (forma de onda dos primeiros 0.5 s, salvo com savefig)
+    - h(t)_sc_diag_{freq}Hz.png  (energia + Schroeder por banda, salvo com savefig)
+    - Gráficos exibidos: curva de Schroeder por banda, ajuste linear por banda
+    - Impressão de T20 por banda no console
+
+  (Célula 2):
+    - h(t)_schroeder_{freq}Hz_AT9_{i}.png  (energia + Schroeder por banda e por impulso,
+      salvo com savefig; título fixo "AT9 - Config. 2")
+    - Gráficos exibidos: energia instantânea (azul) + Schroeder (laranja) sobrepostos
+
+FIGURAS DA MONOGRAFIA RELACIONADAS:
+  As figuras h(t)_sc_diag_{freq}Hz.png correspondem diretamente às figuras de energia
+  instantânea e curva de Schroeder por banda de oitava apresentadas na monografia. O
+  arquivo primeiras_reflexoes.png corresponde à figura das primeiras reflexões. Os
+  arquivos h(t)_schroeder_{freq}Hz_AT9_{i}.png correspondem às figuras da análise do
+  AT9 Config. 2. O PDF não pôde ser lido automaticamente; os números exatos de figura
+  não podem ser confirmados.
+
+NÚMERO DE CÉLULAS JUPYTER (#%%):
+  3
+
+NOTAS ADICIONAIS:
+  - Na célula 1, o janelamento usa soma_indice = int(1*fs) - 1 (aprox. 1 s) a partir do
+    pico (sem margem antes), resultando em análise de 1 segundo após o impulso.
+  - Na célula 2, o janelamento usa soma_indice = int(2.3*fs) - 1 (aprox. 2.3 s) com
+    margem de 2000 amostras antes do pico.
+  - Os gráficos de Schroeder com ajuste linear (Plot 4) da célula 2 estão comentados.
+  - O título dos gráficos da célula 2 é hardcoded como "AT9 - Config. 2"
+    (em vez do número do arquivo).
+  - Os eixos xlim da célula 2 são fixados em 0-2.8 s; da célula 1 em 0-1.2 s (energia)
+    e 0-2.6 s (Schroeder + ajuste).
+  - A célula 1 salva todos os gráficos de energia+Schroeder (h(t)_sc_diag); os gráficos
+    de Schroeder e ajuste linear estão com savefig comentado.

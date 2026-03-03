@@ -1,0 +1,57 @@
+=== SCRIPT: automacao.py ===
+
+DESCRIÇÃO:
+  Script de visualização exploratória e diagnóstico das respostas ao impulso registradas.
+  A primeira célula itera sobre os 16 impulsos do AT9 e exibe a forma de onda bruta
+  (amplitude vs. tempo) de cada um. As células seguintes, importando parametros.py,
+  calculam e exibem a curva de energia instantânea e a curva de Schroeder (sem filtro de
+  banda) para verificação visual da qualidade do sinal. O script foi usado para inspeção
+  e ajuste dos parâmetros de janelamento antes das análises definitivas.
+
+MÉTRICAS ACÚSTICAS CALCULADAS:
+  Nenhuma métrica acústica final é calculada. O script calcula de forma intermediária:
+  - Curva de Schroeder (integração cumulativa invertida da energia)
+  - Energia instantânea normalizada em dB
+
+ARQUIVOS DE ÁUDIO DE ENTRADA:
+  (Célula 1 - loop explícito):
+    - AT9_explosão{1..16}.wav
+
+  (Células 2 e 3 - via parametros.py):
+    - AT10_explosao3.wav  (herdado de parametros)
+
+MÓDULOS PYTHON IMPORTADOS:
+  - parametros
+
+SAÍDAS GERADAS:
+  - Gráficos exibidos (plt.show()) de:
+      - Forma de onda bruta (Amplitude [Pa] vs. Tempo [s]) para cada impulso AT9
+        (célula 1, 16 gráficos)
+      - Curva de decaimento bruta do arquivo de parametros (célula 2)
+      - Curva de energia instantânea em dB (célula 2)
+      - Curva de decaimento bruta (célula 3)
+      - Curva de energia instantânea em dB (célula 3)
+  - Impressão de informações diagnósticas no console (comprimento de vetores, valores
+    de energia, tempo) nas células 2 e 3.
+  - Um arquivo PNG comentado: "curva_decaimento_AT9_16.png".
+
+FIGURAS DA MONOGRAFIA RELACIONADAS:
+  As curvas de decaimento e energia instantânea geradas por este script provavelmente
+  correspondem às figuras de resposta ao impulso (h(t)) apresentadas nos métodos ou
+  resultados da monografia. O PDF não pôde ser lido automaticamente; a associação exata
+  com números de figuras não pode ser confirmada.
+
+NÚMERO DE CÉLULAS JUPYTER (#%%):
+  3
+
+NOTAS ADICIONAIS:
+  - Na célula 1, o janelamento usa soma_indice = 4*fs - 1 (aprox. 4 s) e
+    indice_inicio = max_pos[0] - 2000 amostras antes do pico.
+  - Na célula 2, o janelamento usa soma_indice = 2*fs - 1 (aprox. 2 s) com margem de
+    600 amostras antes do pico; o vetor de tempo relativo é zerado em t_inicio.
+  - Na célula 3, o janelamento volta a usar soma_indice = 4*fs - 1, idêntico à célula 1.
+  - Os xlim dos gráficos variam entre 0-4 s (células 1 e 3) e 0-4.8 s (célula 2).
+  - A célula 2 imprime comprimentos de vetores e os arrays de energia/Schroeder para
+    depuração.
+  - Este script não foi projetado para produção de resultados finais, mas sim para
+    inspeção visual e validação de parâmetros.

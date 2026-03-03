@@ -1,0 +1,46 @@
+=== SCRIPT: sabine.py ===
+
+DESCRIÇÃO:
+  Script que aplica a equação de Sabine e sua variante para estimar o coeficiente de
+  absorção sonora do teto dos ambientes AT9 e AT10. A lógica consiste em usar o T60
+  medido do AT9 (sala de maior volume e geometria conhecida) para calcular o coeficiente
+  de absorção médio via Sabine clássico, e depois usar esse valor como entrada da versão
+  modificada de Sabine para estimar o coeficiente de absorção do teto do AT10. As
+  dimensões físicas das salas são obtidas do módulo volume_sala.py.
+
+MÉTRICAS ACÚSTICAS CALCULADAS:
+  - Coeficiente de absorção sonora alpha (adimensional, 0-1) por banda de oitava,
+    calculado via equação de Sabine para o AT9.
+  - Coeficiente de absorção do teto do AT10 por banda de oitava, via Sabine invertido.
+
+ARQUIVOS DE ÁUDIO DE ENTRADA:
+  Nenhum. O script não lê arquivos de áudio; os valores de T60 são hardcoded.
+
+MÓDULOS PYTHON IMPORTADOS:
+  - volume_sala
+
+SAÍDAS GERADAS:
+  - Impressão no console do coeficiente de absorção do teto do AT10 para cada uma das
+    7 bandas de oitava (125 Hz a 8000 Hz), com formato "alpha {freq} Hz: {valor:.3f}".
+  - Nenhum gráfico é gerado; nenhum arquivo PNG é salvo.
+
+FIGURAS DA MONOGRAFIA RELACIONADAS:
+  Os valores de coeficiente de absorção calculados aqui provavelmente aparecem em tabelas
+  de resultados da monografia relacionadas às propriedades dos materiais acústicos dos
+  ambientes estudados. O PDF não pôde ser lido automaticamente; a associação exata com
+  números de figuras ou tabelas não pode ser confirmada.
+
+NÚMERO DE CÉLULAS JUPYTER (#%%):
+  2
+
+NOTAS ADICIONAIS:
+  - Equação de Sabine clássica: alpha = (0.161 * V) / (T60 * S)
+  - Equação de Sabine modificada (sabine_2): alpha_teto = (0.161*V/T60 - S_outros*alpha_outros) / S_teto
+  - Volumes das salas hardcoded: V_AT9 = 216.03 m³, V_AT10 = 216.03 m³, V_AT5 = 218.74 m³.
+  - Valores de T60 hardcoded para AT9: [2.16, 2.06, 1.99, 1.75, 1.64, 1.46, 1.01] s.
+  - Valores de T60 hardcoded para AT10: [0.86, 0.58, 0.51, 0.63, 0.71, 0.73, 0.60] s.
+  - As dimensões físicas (comprimento C, largura L, altura A) são importadas de
+    volume_sala.py como atributos de módulo (ex.: volume_sala.A_AT9).
+  - S_outros é a área total sem o teto do AT10; S_teto é apenas a área do teto do AT10.
+  - A suposição implícita é que o AT9 é uma referência para calibrar o coeficiente de
+    absorção a ser aplicado ao AT10.

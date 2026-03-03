@@ -1,0 +1,49 @@
+=== SCRIPT: IF.py ===
+
+DESCRIÇÃO:
+  Script que calcula o Índice de Favorabilidade (IF) a partir dos valores de U50 já
+  calculados e embutidos como listas hardcoded. Para cada banda de oitava, aplica a
+  equação polinomial IF = -0.838*U50² + 1.027*U50 + 99.42, que converte o U50 (dB) em
+  uma escala percentual de favorabilidade acústica (0-100%). O script contém três células:
+  a célula principal itera sobre os sete valores de U50 do AT10 (com ventiladores), e
+  as células seguintes realizam cálculos pontuais de teste.
+
+MÉTRICAS ACÚSTICAS CALCULADAS:
+  - IF (Índice de Favorabilidade, em %, calculado a partir de U50)
+
+ARQUIVOS DE ÁUDIO DE ENTRADA:
+  Nenhum. O script não lê arquivos de áudio; todos os valores de U50 são hardcoded.
+
+MÓDULOS PYTHON IMPORTADOS:
+  Nenhum módulo local do projeto é importado.
+
+SAÍDAS GERADAS:
+  - Impressão da lista IF (7 valores percentuais) para AT10 com ventiladores.
+  - Impressão de um valor pontual de IF na célula 3 (teste com U50 = -0.45).
+  - Nenhum gráfico é gerado; nenhum arquivo PNG é salvo.
+
+FIGURAS DA MONOGRAFIA RELACIONADAS:
+  Os valores de IF calculados aqui alimentam os dados hardcoded no gráfico de IF
+  gerado por graficos.py (IF_comparacao_cv_apre.png e IF_comparacao_sv_apre.png).
+  O PDF não pôde ser lido automaticamente; a associação exata com números de figuras
+  não pode ser confirmada.
+
+NÚMERO DE CÉLULAS JUPYTER (#%%):
+  3
+
+NOTAS ADICIONAIS:
+  - Os valores de U50 hardcoded cobrem todos os quatro ambientes e duas condições
+    (sem ventiladores "_sv" e com ventiladores "_cv"):
+      U50_AT5_sv, U50_AT5_cv
+      U50_AT9_sv_1, U50_AT9_cv_1  (AT9 Config. 1)
+      U50_AT9_sv_2, U50_AT9_cv_2  (AT9 Config. 2)
+      U50_AT10_sv, U50_AT10_cv
+  - O cálculo ativo na célula 1 usa U50_AT10_cv (AT10 com ventiladores).
+  - A equação do IF (IF = -0.838*U50² + 1.027*U50 + 99.42) é uma função de segundo
+    grau ajustada empiricamente, presente no contexto da norma de inteligibilidade.
+  - Há um possível erro na lista U50_AT9_cv_2 na posição de índice 5: o valor é
+    positivo (4.02) enquanto os demais são negativos, o que pode ser um erro de digitação
+    (deveria ser -4.02).
+  - A célula 3 realiza um cálculo manual diferente da fórmula da célula 1, usando
+    U50 = -0.45 com coeficientes ligeiramente diferentes (1.027 multiplicado por U50
+    em vez de aplicado ao quadrado), sugerindo uso para teste/verificação pontual.

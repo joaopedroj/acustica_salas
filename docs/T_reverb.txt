@@ -1,0 +1,57 @@
+=== SCRIPT: T_reverb.py ===
+
+DESCRIÇÃO:
+  Script dedicado ao cálculo e à visualização do tempo de reverberação (T20, T30 e T60)
+  em todas as bandas de oitava (125 Hz a 8000 Hz). Para cada banda, o sinal é filtrado,
+  a curva de Schroeder (integral cumulativa invertida da energia) é calculada e um ajuste
+  linear é aplicado para estimar os tempos de decaimento. O script inclui versões com e
+  sem marcação da faixa dinâmica e automação para múltiplos arquivos de impulso dos
+  ambientes AT5, AT9 e AT10.
+
+MÉTRICAS ACÚSTICAS CALCULADAS:
+  - T20 (tempo de decaimento de 20 dB, extrapolado para T60)
+  - T30 (tempo de decaimento de 30 dB, extrapolado para T60)
+  - T60 (tempo de reverberação, estimado por regressão linear na curva de Schroeder)
+
+ARQUIVOS DE ÁUDIO DE ENTRADA:
+  - AT10_explosao{1..8}.wav   (automação AT10, células 3 e 4)
+  - AT10_ruido fundo1.wav     (ruído de fundo AT10)
+  - AT5_explosão{1..8}.wav    (automação AT5, célula 5)
+  - AT5_ruido fundo mic1.wav  (ruído de fundo AT5)
+  - AT9_explosão{1..8}.wav    (automação AT9 Config. 1, célula 6)
+  - AT9_ruido fundo.wav       (ruído de fundo AT9)
+  (O áudio principal é obtido de parametros.py nas duas primeiras células.)
+
+MÓDULOS PYTHON IMPORTADOS:
+  - parametros
+
+SAÍDAS GERADAS:
+  - Gráficos exibidos (plt.show()) com a curva de Schroeder e o ajuste linear para cada
+    banda de oitava, incluindo anotações de T20, T30 e T60 e marcação da faixa dinâmica.
+  - Arquivos PNG salvos (plt.savefig) nas automações:
+      T60_{freq}Hz_AT10_{i}.png
+      T60_{freq}Hz_AT5_{i}_titulo.png
+      T60_{freq}Hz_AT9_{i}_titulo.png
+  - Impressão de T20, T30 e T60 para cada banda no console.
+
+FIGURAS DA MONOGRAFIA RELACIONADAS:
+  As figuras geradas correspondem às curvas de Schroeder com ajuste linear e marcação
+  da faixa dinâmica apresentadas na monografia para os ambientes AT5, AT9 (Config. 1 e 2)
+  e AT10. Com base nos nomes de arquivo salvos (T60_{freq}Hz_AT*), estas figuras
+  correspondem às figuras da seção de resultados de T60 (tempo de reverberação) da
+  monografia. O PDF não pôde ser lido automaticamente neste ambiente; a associação
+  exata com números de figuras não pode ser confirmada.
+
+NÚMERO DE CÉLULAS JUPYTER (#%%):
+  7
+
+NOTAS ADICIONAIS:
+  - O valor de ruído de fundo (r_f) é hardcoded como 44.73 dB nas primeiras células,
+    sendo calculado dinamicamente nas células de automação.
+  - A faixa de ajuste linear (T20) é definida entre -5 dB e -25 dB (com descarte dos
+    primeiros 5 dB) nas células de automação, e entre 0 dB e -25 dB na célula inicial.
+  - Para a banda de 125 Hz, o gráfico usa extensão de eixo temporal (fator 2x) para
+    acomodar o T60 mais longo nessa frequência.
+  - O script é muito extenso (~1140 linhas); grande parte é código repetido por ambiente.
+  - As células de automação iteram sobre i in range(1, 9) para AT10 e AT5, e
+    i in range(1, 9) para AT9 Config. 1.
