@@ -51,7 +51,8 @@ def processar_arquivo(audio, fs):
 
 
 if __name__ == "__main__":
-    processar_arquivo(parametros.audio, parametros.fs)
+    _default = parametros.load_default_audio()
+    processar_arquivo(_default['audio'], _default['fs'])
 
     at9_files = sorted(glob.glob(os.path.join(AUDIO_DIR, 'AT9_impulse_[0-9]*.wav')))
 

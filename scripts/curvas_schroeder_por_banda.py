@@ -1,3 +1,5 @@
+"""curvas_schroeder_por_banda.py — Visualização das curvas de Schroeder por banda."""
+
 import os
 import glob
 import numpy as np
@@ -12,7 +14,7 @@ f_central_lista = [125, 250, 500, 1000, 2000, 4000, 8000]
 
 def computar_schroeder_normalizado(audio_cortado, fs, f_central):
     filtered = parametros.filtro_banda(audio_cortado, fs, f_central)
-    energy = filtered**2
+    energy = filtered ** 2
     schroeder = np.cumsum(energy[::-1])[::-1]
     schroeder /= np.max(schroeder)
     schroeder_db = 10 * np.log10(schroeder + 1e-12)
@@ -21,13 +23,13 @@ def computar_schroeder_normalizado(audio_cortado, fs, f_central):
 
 
 if __name__ == "__main__":
-    audio_ref = parametros.audio
-    fs = parametros.fs
-    t = parametros.t
+    _default = parametros.load_default_audio()
+    audio_ref = _default['audio']
+    fs = _default['fs']
 
-    max_pos = np.unravel_index(np.argmax(audio_ref), audio_ref.shape)
+    max_pos = int(np.argmax(audio_ref))
     soma_indice = int(1 * fs) - 1
-    audio_cortado_ref = audio_ref[max_pos[0] : max_pos[0] + soma_indice]
+    audio_cortado_ref = audio_ref[max_pos: max_pos + soma_indice]
     t_cortado_ref = np.arange(len(audio_cortado_ref)) / fs
 
     plt.figure()
@@ -42,7 +44,8 @@ if __name__ == "__main__":
     plt.show()
 
     for f_central in f_central_lista:
-        energy_db, schroeder_db = computar_schroeder_normalizado(audio_cortado_ref, fs, f_central)
+        energy_db, schroeder_db = computar_schroeder_normalizado(
+            audio_cortado_ref, fs, f_central)
         t_sch = t_cortado_ref
 
         plt.figure()
@@ -65,57 +68,56 @@ if __name__ == "__main__":
         plt.xlim(0, 1.2)
         plt.ylim(-100, 10)
         plt.grid(True)
+        plt.tight_layout()
+        plt.show()
+
+        resultado = parametros.ajustar_t60(t_sch, schroeder_db)
+        if resultado is None:
+            print(f"Banda {f_central} Hz: dados insuficientes para ajuste T20.")
+            continue
+        coeffs, _t_fit, T20, T30, T60 = resultado
+        line_full = np.polyval(coeffs, t_sch)
+
+        plt.figure()
+        plt.plot(t_sch, schroeder_db, label="Curva de Schroeder", color="orange")
+        plt.plot(t_sch, line_full, 'k--', label="Ajuste linear", linewidth=2)
+        plt.xlabel("Tempo [s]")
+        plt.ylabel("Nível [dB]")
+        plt.title(f"{f_central} Hz")
+        plt.grid(True)
+        plt.xlim(0, 2.6)
+        plt.ylim(-100, 10)
         plt.legend()
         plt.tight_layout()
         plt.show()
 
-        mask = (schroeder_db <= 0) & (schroeder_db >= -25)
-        t_fit = t_sch[mask]
-        y_fit = schroeder_db[mask]
-        if len(t_fit) > 1:
-            coeffs = np.polyfit(t_fit, y_fit, 1)
-            T20 = -60 / coeffs[0]
-            line_full = np.polyval(coeffs, t_sch)
-
-            plt.figure()
-            plt.plot(t_sch, schroeder_db, label="Curva de Schroeder", color="orange")
-            plt.plot(t_sch, line_full, 'k--', label="Ajuste linear", linewidth=2)
-            plt.xlabel("Tempo [s]")
-            plt.ylabel("Nível [dB]")
-            plt.title(f"{f_central} Hz")
-            plt.grid(True)
-            plt.xlim(0, 2.6)
-            plt.ylim(-100, 10)
-            plt.legend()
-            plt.tight_layout()
-            plt.show()
-
-            print(f"Banda {f_central} Hz: T20 ≈ {T20:.2f} s")
-        else:
-            print(f"Banda {f_central} Hz: dados insuficientes para ajuste T20.")
+        print(f"Banda {f_central} Hz: T20 ≈ {T20:.2f} s | "
+              f"T30 ≈ {T30:.2f} s | T60 ≈ {T60:.2f} s")
 
     at9_files = sorted(glob.glob(os.path.join(AUDIO_DIR, 'AT9_impulse_[0-9]*.wav')))
 
     for filepath in at9_files:
         fs, audio = wav.read(filepath)
         audio = audio / np.max(np.abs(audio))
-        t = np.arange(0, (len(audio)-1)/fs + 1/fs, 1/fs)
 
-        max_pos = np.unravel_index(np.argmax(audio), audio.shape)
+        max_pos = int(np.argmax(audio))
         soma_indice = int(2.3 * fs) - 1
-        indice_inicio = max_pos[0] - 2000
-        audio_cortado = audio[indice_inicio : max_pos[0] + soma_indice]
+        indice_inicio = max_pos - 2000
+        audio_cortado = audio[indice_inicio: max_pos + soma_indice]
         t_cortado = np.arange(len(audio_cortado)) / fs
 
         fname = os.path.splitext(os.path.basename(filepath))[0]
 
         for f_central in f_central_lista:
-            energy_db, schroeder_db = computar_schroeder_normalizado(audio_cortado, fs, f_central)
+            energy_db, schroeder_db = computar_schroeder_normalizado(
+                audio_cortado, fs, f_central)
             t_sch = t_cortado
 
             plt.figure()
-            plt.plot(t_sch, energy_db, label="Energia instantânea", alpha=0.5, color="dodgerblue")
-            plt.plot(t_sch, schroeder_db, label="Curva de Schroeder", linewidth=2, color="orange")
+            plt.plot(t_sch, energy_db, label="Energia instantânea",
+                     alpha=0.5, color="dodgerblue")
+            plt.plot(t_sch, schroeder_db, label="Curva de Schroeder",
+                     linewidth=2, color="orange")
             plt.xlabel("Tempo [s]")
             plt.ylabel("NPS [dB]")
             plt.xlim(0, 2.8)
