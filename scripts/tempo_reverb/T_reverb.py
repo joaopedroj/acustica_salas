@@ -4,15 +4,21 @@ Schroeder, com truncamento pelo método de Lundeby (ISO 3382-2 Anexo).
 """
 
 import os
+import sys
 import glob
 import numpy as np
 import scipy.io.wavfile as wav
 import matplotlib.pyplot as plt
 
+# Permite execução standalone — adiciona scripts/ ao sys.path para achar parametros.py
+_PARENT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
+if _PARENT not in sys.path:
+    sys.path.insert(0, _PARENT)
+
 import parametros
 from parametros import ajustar_t60
 
-AUDIO_DIR = os.path.join(os.path.dirname(__file__), '..', 'audio')
+AUDIO_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'audio')
 f_central_lista = [125, 250, 500, 1000, 2000, 4000, 8000]
 
 

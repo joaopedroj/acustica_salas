@@ -24,3 +24,12 @@ Thumbs.db
 *.egg-info/
 build/
 dist/
+
+# Saídas geradas pelos scripts (T60_resumo.txt, STI_todas_salas.txt, claridade_resumo.txt)
+scripts/tempo_reverb/resultados/
+scripts/sti/resultados/
+scripts/claridade/resultados/
+scripts/nps/resultados/
+
+# Ferramenta local de plots (script + figuras geradas)
+scripts/graficos/

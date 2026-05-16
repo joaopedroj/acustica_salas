@@ -10,8 +10,10 @@ import numpy as np
 _SCRIPTS_DIR = os.path.normpath(
     os.path.join(os.path.dirname(__file__), '..', 'scripts')
 )
-if _SCRIPTS_DIR not in sys.path:
-    sys.path.insert(0, _SCRIPTS_DIR)
+for _sub in ('', 'tempo_reverb', 'sti', 'claridade', 'nps'):
+    _p = os.path.join(_SCRIPTS_DIR, _sub) if _sub else _SCRIPTS_DIR
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
 
 import STI
 

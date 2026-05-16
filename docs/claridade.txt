@@ -57,3 +57,111 @@ NOTAS ADICIONAIS:
     teste=[-7.68301103, ..., -12.7441116].
   - A curva de Schroeder é calculada mas usada apenas como referência interna; o cálculo
     de C50/D50 usa diretamente os vetores de energia no domínio do tempo.
+
+
+=== HISTÓRICO: ARTEFATO DE FILTRAGEM EM BAIXA FREQUÊNCIA (corrigido) ===
+
+CONTEXTO:
+  Versões anteriores do script produziam valores de C50 e D50 anormalmente
+  elevados em banda baixa (especialmente 125 Hz), inconsistentes com o T60
+  medido nas mesmas salas/bandas. Exemplos do resumo gerado antes da correção:
+    AT5  125 Hz: T60 ≈ 1,2 s → D50 = 95 %, C50 = +13 dB (fisicamente impossível)
+    AT9  125 Hz: T60 ≈ 2,7 s → D50 = 90 %, C50 = +10 dB
+    AT10 125 Hz: T60 ≈ 0,8 s → D50 = 97 %, C50 = +15 dB
+  A fórmula analítica para decaimento exponencial puro prevê, no AT9,
+  D50 ≈ 23 % e C50 ≈ −5 dB — três a quatro ordens de magnitude de discrepância.
+
+DIAGNÓSTICO TÉCNICO:
+  O fluxo problemático envolvia DUAS funções em sequência:
+
+  1) janela_adaptativa(audio, fs) cortava o sinal a partir de max_pos
+     (índice do pico do impulso) sem nenhum buffer anterior:
+         audio_cortado = audio[max_pos: max_pos + soma_indice]
+     A PRIMEIRA AMOSTRA de audio_cortado era, portanto, o próprio pico do
+     impulso — uma amostra de amplitude muito alta na borda inicial do array.
+
+  2) calcular_c50_d50(audio_cortado, fs, f_central) aplicava em seguida
+     parametros.filtro_banda, que internamente usa scipy.signal.sosfiltfilt
+     (filtragem zero-phase, vai-e-volta). O sosfiltfilt usa padtype='odd' por
+     default, ou seja, estende o sinal com REFLEXÃO ANTISSIMÉTRICA da borda
+     antes do índice 0 — efetivamente criando uma cópia espelhada do pico
+     antes do início do array real.
+
+  Com o padlen configurado para 3·fs/f1 amostras (introduzido junto com a
+  suíte de testes — ver parametros.filtro_banda), em 125 Hz a fs = 51200 Hz
+  isso são 1737 amostras (≈ 34 ms) de padding refletido. O filtro Butterworth
+  ordem 4 em banda estreita (88,4–176,8 Hz) tem memória de centenas de
+  milissegundos, então:
+
+    a) Gera ringing simétrico em torno do pico — metade do ringing "vazaria"
+       para índices negativos do array, mas como esses índices não existem,
+       é a reflexão do padding que volta para os primeiros milissegundos do
+       sinal real.
+    b) Esse retorno EFETIVAMENTE DUPLICA a energia do pico nos primeiros
+       50 ms — exatamente a janela usada para C50/D50.
+    c) Em altas frequências o padlen é mínimo (3·fs/5657 ≈ 27 amostras em
+       8000 Hz, ≈ 0,5 ms) e o ringing do filtro também é curto, então o
+       efeito desaparece. Por isso o desvio era de ~+18 dB em C50 a 125 Hz
+       e apenas ~+2 dB em 8000 Hz.
+
+POR QUE T60 E STI NÃO SOFRIAM O MESMO ARTEFATO:
+
+  T_reverb.computar_schroeder + parametros.ajustar_t60 (script T_reverb.py):
+    O ajuste linear da curva de Schroeder usa máscara [−5, −25 dB], ou seja,
+    DESCARTA o platô inicial (0 a −5 dB) — justamente a região contaminada
+    pelo transitório de filtragem. O slope da regressão é uma propriedade
+    global do decaimento, robusta a perturbações nos primeiros milissegundos.
+
+  STI.calcular_mti + STI.calcular_sti_final (script STI.py):
+    O recorte da resposta ao impulso usa h_audio[max_pos - 600 : max_pos +
+    28230] — INCLUI 600 amostras antes do pico, fornecendo contexto natural
+    para o padding do filtro. Além disso, o cálculo de MTI é baseado em
+    correlação de envelope após filtro passa-baixa de 100 Hz e convolução
+    com 5 s de ruído anecoico — métrica estruturalmente insensível a
+    transientes curtos.
+
+CORREÇÃO APLICADA:
+
+  janela_adaptativa(audio, fs, duracao_max_s=2.0, pre_pico_s=0.1):
+    Passou a retornar uma janela que inclui pre_pico_s segundos ANTES do
+    pico (default 0,1 s = 5120 amostras a 51200 Hz, cobrindo com folga o
+    padlen máximo de 1737 amostras em 125 Hz). Devolve uma tupla
+    (audio_cortado, pico_idx), onde pico_idx é a posição do pico dentro do
+    array recortado (não confundir com max_pos no sinal original).
+
+  calcular_c50_d50(audio_cortado, fs, f_central, pico_idx=0):
+    Recebe um novo parâmetro pico_idx (default 0 para retrocompatibilidade)
+    e integra a energia a partir desse índice — não mais a partir do início
+    do array. As primeiras pico_idx amostras servem APENAS como contexto
+    para a filtragem zero-phase do sosfiltfilt; não entram nas integrais
+    de energia_pre50 e energia_pos50.
+
+  Bloco __main__ de claridade.py:
+    Propaga o pico_idx retornado por janela_adaptativa para
+    calcular_c50_d50, tanto no bloco do sinal de referência quanto no
+    loop por sala.
+
+VALIDAÇÃO:
+
+  Suíte de testes em tests/test_c50_pipeline.py:
+    - test_c50_em_1kHz_recupera_valor_analitico (3 parametrizações): C50
+      em 1 kHz com T60 = {0,5; 1,0; 2,0} s bate com a fórmula analítica
+      dentro de ±1 dB.
+    - test_c50_em_125Hz_robusto_a_padlen: caso crítico em 125 Hz com
+      sinal sintético padrão — passa com tolerância de ±2 dB.
+    - test_c50_d50_consistencia_interna: D50/(1−D50) == 10**(C50/10),
+      verifica que ambas derivam das mesmas energias.
+    - test_c50_sinal_constante_em_1kHz: seno puro de 2 s em 1 kHz
+      produz C50 ≈ −16 dB (razão geométrica 0,05/1,95).
+    - test_c50_em_125Hz_com_pre_silencio: sinal sintético com pre-silêncio
+      seguido de (ruído branco × decaimento), simulando um clap real em
+      sala reverberante. Sem a correção, D50 explodia para ≈ 0,95; com a
+      correção, fica abaixo de 0,5 (consistente com T60 = 2 s).
+    - test_d50_inversamente_proporcional_a_T60: D50 decresce monotonicamente
+      à medida que T60 aumenta — propriedade física obrigatória.
+
+VALORES APÓS CORREÇÃO (médias em 125 Hz no resumo regenerado):
+    AT5  T60 ≈ 1,2 s → D50 = 32 %, C50 = −3,4 dB   (era 95 %, +13 dB)
+    AT9  T60 ≈ 2,7 s → D50 = 20 %, C50 = −6,5 dB   (era 90 %, +10 dB)
+    AT10 T60 ≈ 0,8 s → D50 = 40 %, C50 = −2,0 dB   (era 97 %, +15 dB)
+  Agora coerentes com T60 e com a correlação inversa esperada T60↔D50.

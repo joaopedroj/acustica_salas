@@ -1,12 +1,18 @@
 import os
+import sys
 import glob
 import numpy as np
 import scipy.io.wavfile as wav
 import matplotlib.pyplot as plt
 
+# Permite execução standalone — adiciona scripts/ ao sys.path para achar parametros.py
+_PARENT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
+if _PARENT not in sys.path:
+    sys.path.insert(0, _PARENT)
+
 import parametros
 
-AUDIO_DIR = os.path.join(os.path.dirname(__file__), '..', 'audio')
+AUDIO_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'audio')
 
 f_central_lista = parametros.f_central_lista
 

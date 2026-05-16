@@ -3,8 +3,15 @@ STI.py — Cálculo do Índice de Transmissão da Fala (Speech Transmission Inde
 conforme IEC 60268-16, em 7 bandas de oitava × 14 frequências de modulação.
 """
 #%%
+import os
+import sys
 import numpy as np
 from scipy.signal import convolve
+
+# Permite execução standalone — adiciona scripts/ ao sys.path para achar parametros.py
+_PARENT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
+if _PARENT not in sys.path:
+    sys.path.insert(0, _PARENT)
 
 import parametros
 
