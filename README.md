@@ -149,4 +149,15 @@ python scripts/nps/NPS_resumo.py
 # Saída: scripts/nps/resultados/NPS_resumo.txt
 ```
 
+---
+
+## Licença
+
+Este repositório adota licenciamento duplo:
+
+- **Código** (`scripts/`, `tests/`): [MIT](LICENSE)
+- **Dados e documentação** (`audio/`, `docs/`): [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+
+Ao reutilizar os áudios ou os resultados, cite este repositório.
+
 
